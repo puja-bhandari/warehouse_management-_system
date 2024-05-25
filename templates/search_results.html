@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>Warehouse</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; 
+  }
+
+  .navbar {
+    border-bottom: 2px solid #8360d4; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  }
+
+  .navbar-logo {
+    width: 70px;
+    height: 70px; 
+    border-radius: 50%; 
+    overflow: hidden; 
+  }
+
+  .navbar-logo img {
+    width: 100%; 
+    height: auto; 
+  }
+
+  .navbar-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+
+  .navbar-menu li {
+    margin-left: 15px; 
+  }
+
+  .navbar-menu li a {
+    text-decoration: none;
+    color: #000; 
+    font-weight: bold;
+    border-radius: 20px; 
+    padding: 8px 12px; 
+    transition: background-color 0.3s; 
+    font-size: 16px;
+    display: flex; 
+    align-items: center; 
+  }
+
+  .navbar-menu li a:hover {
+    background-color: #8360d4; 
+    color: #fff; 
+  }
+
+  /* Styling for product boxes */
+  .product-box {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 300px; /* Adjust box width */
+    margin-right: 20px; /* Adjust spacing between boxes */
+    float: left; /* Float boxes left to create a grid */
+    text-align: center; /* Center align text */
+  }
+
+  .product-box img {
+    width: 100%;
+    height: 60%;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .order-button, .remove-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  .search-form {
+    text-align: center;
+  }
+
+  .search-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .search-button {
+    background-color: #8360d4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-logo">
+    <img src="{% static 'warehouse.jpg' %}" alt="Warehouse Logo">
+  </div>
+  <ul class="navbar-menu">
+    <li><a href="#"><i class="fa fa-info-circle"></i> Display Product Information</a></li>
+    <li><a href="#"><i class="fa fa-file-text"></i> Generate Report</a></li>
+    <li>
+      <form class="search-form" method="GET" action="{% url 'home' %}">
+        <input class="search-input" type="text" name="search_query" placeholder="Search products">
+        <button class="search-button" type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </li>
+  </ul>
+</div>
+
+<h2 style="text-align: center;">Products</h2>
+
+<div style="overflow: auto;"> 
+  {% if products %}
+    <!-- Display filtered products -->
+    {% for product in products %}
+      <div class="product-box">
+        <h3>{{ product.name }}</h3>
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        <p>Quantity: {{ product.quantity }}</p>
+        <p>Description: {{ product.description }}</p>
+        <p>Cost: {{ product.cost }} rs.</p>
+        <form method="POST" action="{% url 'home' %}">
+          {% csrf_token %}
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <button class="order-button" name="order">Order</button>
+        </form>
+        {% for order in orders %}
+          {% if order.product.id == product.id %}
+            {% if order.status == 'registered' %}
+              <form method="POST" action="{% url 'home' %}">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" value="{{ order.id }}">
+                <button class="remove-button" name="remove_order">Remove Order</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <!-- Display message if no products found -->
+    <p>No products yet.</p>
+  {% endif %}
+</div>
+
+</body>
+</html>

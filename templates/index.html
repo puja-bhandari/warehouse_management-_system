@@ -1,0 +1,135 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>Warehouse - Admin</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; 
+  }
+
+  .navbar {
+    border-bottom: 2px solid #8360d4; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  }
+
+  .navbar-logo {
+    width: 70px;
+    height: 70px; 
+    border-radius: 50%; 
+    overflow: hidden; 
+  }
+
+  .navbar-logo img {
+    width: 100%; 
+    height: auto; 
+  }
+
+  .navbar-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+
+  .navbar-menu li {
+    margin-left: 15px; 
+  }
+
+  .navbar-menu li a {
+    text-decoration: none;
+    color: #000; 
+    font-weight: bold;
+    border-radius: 20px; 
+    padding: 8px 12px; 
+    transition: background-color 0.3s; 
+    font-size: 16px;
+    display: flex; 
+    align-items: center; 
+  }
+
+  .navbar-menu li a:hover {
+    background-color: #8360d4; 
+    color: #fff; 
+  }
+
+  /* Styling for order boxes */
+  .order-box {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 300px; /* Adjust box width */
+    margin-right: 20px; /* Adjust spacing between boxes */
+    float: left; /* Float boxes left to create a grid */
+  }
+
+  .order-box p {
+    margin: 0;
+  }
+
+  .order-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-logo">
+    <img src="{% static 'warehouse.jpg' %}" alt="Warehouse Logo">
+  </div>
+  <ul class="navbar-menu">
+    <li><a href="#"><i class="fa fa-search"></i> Search Order</a></li>
+    <li><a href="#"><i class="fa fa-info-circle"></i> Display Order Information</a></li>
+    <li><a href="{% url 'generate_report' %}"><i class="fa fa-file-text"></i> Generate Report</a></li>
+    <li><a href="{% url 'add_product' %}"><i class="fa fa-plus"></i> Add Product</a></li>
+   
+  </ul>
+</div>
+
+<h2 style="text-align: center;">Pending Orders</h2>
+<div style="overflow: auto;"> 
+  {% for order in orders %}
+  <div class="order-box">
+    <p>Order ID: {{ order.id }}</p>
+    <p>Product: {{ order.product.name }}</p>
+    <p>Status: {{ order.status }}</p>
+    <!-- Display product image and other details -->
+    <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}">
+    <p>Description: {{ order.product.description }}</p>
+    <p>Quantity: {{ order.product.quantity }}</p>
+    <p>Cost: {{ order.product.cost }} rs.</p>
+    {% if order.status == 'registered' %}
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="order_id" value="{{ order.id }}">
+      <button class="order-button" type="submit" name="collect_order">Collect Order</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+</body>
+</html>
+
